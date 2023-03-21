@@ -1,0 +1,188 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-background: #141414;
+    --main-color-bright: #646464;
+    --main-color-dark: #444444;
+
+    --side-nav-main: #646464;
+    --side-nav-secondary: #141414;
+  }
+}
+
+html {
+  background-color: var(--color-background);
+  margin: 0;
+  height: 100%;
+  overflow: hidden
+}
+
+
+.slowfadein {
+  animation: slowfadein 2s linear
+}
+.fastfadein {
+  animation: slowfadein 0.5s linear
+}
+@keyframes slowfadein {
+  0% {
+    opacity: 0%;
+  }
+  100% {
+    opacity: 100%;
+  }
+  
+}
+
+.fadeinhalf {
+  animation: fadeinhalf 0.5s cubic-bezier(.21,.99,.46,1)
+}
+@keyframes fadeinhalf {
+  0% {
+    opacity: 0%;
+  }
+  100% {
+    opacity: 50%;
+  }
+}
+
+.popupAnim {
+  animation: popupAnim 3s cubic-bezier(.21,.99,.46,1);
+  animation-fill-mode: both
+}
+@keyframes popupAnim {
+  0% {
+    transform: translateY(100%);
+    opacity: 0%;
+  }
+  10% {
+    transform: translateY(0%);
+    opacity: 100%;
+  }
+  90%{
+    opacity: 100%;
+  }
+  100%{
+    opacity: 0%;
+  }
+}
+
+.unselectable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.anchor-center {
+  transform: translate(-50%, -50%);
+}
+
+.background-color {
+  background-color: var(--color-background);
+}
+
+.border-color {
+  border-color: var(--main-color-bright)
+}
+
+.background-color-bright{
+  background-color: var(--main-color-bright)
+}
+
+.text-bright{
+  color: var(--main-color-bright)
+}
+
+.text-dark{
+  color: var(--main-color-dark)
+}
+
+.btn-green {
+  @apply bg-green-500 text-white rounded-xl;
+}
+
+.btn-green:hover {
+  @apply bg-green-700;
+}
+
+.btn-blue {
+  @apply bg-blue-500 text-white rounded-xl;
+}
+
+.btn-blue:hover {
+  @apply bg-blue-700;
+}
+
+.btn-red {
+  @apply bg-red-500 text-white rounded-xl;
+}
+
+.btn-red:hover {
+  @apply bg-red-700;
+}
+
+.side-btn {
+  background-color: var(--side-nav-secondary);
+  border-color: var(--side-nav-main);
+  border-width: 1px;
+  @apply text-white text-3xl duration-500 w-60 h-12
+}
+
+.side-btn:hover {
+  background-color: var(--side-nav-main);
+  @apply text-black
+}
+
+.btn-utility {
+  background-color: var(--side-nav-secondary);
+  border-color: var(--side-nav-main);
+  border-width: 1px;
+  @apply text-white text-3xl duration-500 w-12 h-12 select-none
+}
+
+.btn-utility:hover {
+  background-color: var(--side-nav-main);
+  @apply text-black
+}
+
+.btn-main {
+  background-color: var(--main-color-dark);
+  border-color: var(--main-color-bright);
+  border-width: 1px;
+  @apply text-white rounded-lg
+}
+
+
+
+.btn-settings {
+  background-color: var(--side-nav-secondary);
+  border-color: var(--side-nav-main);
+  border-width: 1px;
+  @apply text-white text-3xl duration-500 h-16 w-1/4 rounded-lg select-none
+}
+
+.btn-settings:hover {
+  background-color: var(--side-nav-main);
+  @apply text-black
+}
+
+.btn-exit {
+  background-color: var(--side-nav-secondary);
+  border-color: var(--side-nav-main);
+  border-width: 1px;
+  @apply text-white text-3xl duration-500 w-10 h-10 rounded-md select-none
+}
+
+.btn-exit:hover {
+  background-color: var(--side-nav-main);
+  @apply text-black
+}
