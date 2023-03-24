@@ -10,6 +10,7 @@
       <div class="flex-1 relative h-full text-white">
         <MainTab v-if="ActiveTab=='main'" :gameData="gameData" @event="handleEvent"/>
         <MedicalTab v-if="ActiveTab=='medical'" :gameData="gameData" @event="handleEvent"/>
+        <CombatTab v-if="ActiveTab=='combat'" :gameData="gameData" @event="handleEvent"/>
         <ShelterTab v-if="ActiveTab=='shelter'" :gameData="gameData" @event="handleEvent"/>
         <TabletTab v-if="ActiveTab=='tablet'" :gameData="gameData" @event="handleEvent"/>
         <Settings v-if="ActiveTab=='settings'" @settingClicked="handleSettingClicked"/>
@@ -34,8 +35,6 @@
       <p class="h-8 text-center ">Year {{ gameData.year }} ({{ season }}) - Day {{ gameData.day }} - Hour {{ gameData.hour }}</p>
       <!-- Activity display -->
       <p class="h-8 text-center ">{{ activityDisplay }}</p>
-      <!-- Energy display -->
-      <p v-if="gameData.statistics.bestEnergy >= 1" class="h-8 text-center text-blue-300">{{ gameData.currentEnergy }} / {{ maxEnergy }} Energy</p>
     </div>
 
     <!-- message log -->
@@ -55,6 +54,7 @@
 <script>
 import MainTab from './components/Tabs/MainTab.vue'
 import MedicalTab from './components/Tabs/MedicalTab.vue'
+import CombatTab from './components/Tabs/CombatTab.vue'
 import ShelterTab from './components/Tabs/ShelterTab.vue'
 import TabletTab from './components/Tabs/TabletTab.vue'
 
@@ -72,6 +72,7 @@ export default {
   components: {
     MainTab,
     MedicalTab,
+    CombatTab,
     ShelterTab,
     TabletTab,
 
@@ -97,30 +98,78 @@ export default {
       var nextDate = new Date()
       this.passRealTime(nextDate.getTime()-date.getTime())
       date = nextDate
-    }, 16)
+    }, 10)
+
+    // Initialize playerStats
+    this.gameData.stats = this.playerStatsCalc
+    this.gameData.maxHealth = this.playerMaxHealthCalc
   },
 
   data(){
     return {
       gameData: { // everything that will be saved (and their default values)
         sidebarOn: true, // is sidebar visible?
-        scrap: 0, // player scrap amount
+        exp: 0,
         hour: 0, 
         day: 0,
         year: 0,
-        searchPoints: 0,
+        name: 'janY',
+        health: 10,
+        maxHealth: 10,
         mainButtonProgress: 0,
         currentActivity: null,
         bodyModifiers:[],
-        currentEnergy: 0,
+        abilities:[
+          {
+            name:'Basic Attack',
+            id:'basic_attack'
+          },
+        ],
+        enemies:[{
+          name: 'goblin',
+          health: 10,
+          maxHealth: 10,
+          stats:{
+            str:{
+              value: 10,
+              name: 'str',
+            },
+            dex:{
+              value: 10,
+              name: 'dex',
+            },
+            con:{
+              value: 10,
+              name: 'con',
+            },
+            wis:{
+              value: 9,
+              name: 'wis',
+            },
+          }, 
+          animations: {
+            hurt: false,
+            dodge: false,
+          }
+        },],
+        stats: null,
+        areaInfo: {
+          areaId: 'grassland',
+          areaTitle: 'The Grassland',
+        },
         statistics:{
-          bestScrap: 0,
-          bestEnergy: 0,
           realTimePlayed: 0, // in miliseconds
-        }
+        },
+        purchased:{
+          
+        },
+        animations:{
+          hurt: false,
+          dodge: false,
+        },
       },
       defaultGameData: {},
-      ActiveTab: "main",
+      ActiveTab: "combat",
       timePassInterval: null,
       logMessages: [],
       popupMessages: [],
@@ -136,6 +185,21 @@ export default {
       switch(event.message){
         case 'mainButtonClick':
           this.mainButtonClick()
+          break
+        case 'basic_attack':
+          this.gameData.enemies[0].health -= 1
+          if (this.gameData.enemies[0].animations.hurt == true){
+            this.gameData.enemies[0].animations.hurt = false
+          }
+          setTimeout( () => {
+            this.gameData.enemies[0].animations.hurt = true
+          clearInterval(this.gameData.enemies[0].animations.hurtInterval)
+          this.gameData.enemies[0].animations.hurtInterval = setTimeout(() => {
+            this.gameData.enemies[0].animations.hurt = false
+          }, 500)
+          }, 10)
+          
+          
           break
       }
     },
@@ -285,7 +349,7 @@ export default {
 
     // activates when button is finished
     doMainButton(amount){
-      this.gameData.scrap += 1
+      this.gameData.purchased.tempStr += 1
       this.pushPopup("You found 1 scrap")
     },
 
@@ -318,14 +382,14 @@ export default {
       this.setGameLoop(newVal, 1)
     },
 
-    // Update statistics
-    'gameData.scrap'(newVal, oldVal){
-      this.gameData.statistics.bestScrap = Math.max(this.gameData.statistics.bestScrap, newVal)
+    playerStatsCalc(newVal, oldVal){
+      this.gameData.stats = newVal
     },
 
-    'gameData.energy'(newVal, oldVal){
-      this.gameData.statistics.bestEnergy = Math.max(this.gameData.statistics.bestEnergy, newVal)
-    }, 
+    playerMaxHealthCalc(newVal, oldVal){
+      this.gameData.maxHealth = newVal
+    },
+
   },
 
   computed: {
@@ -345,6 +409,14 @@ export default {
       }
       
     },
+  
+    playerStatsCalc(){ // STR, DEX, CON, WIS...
+      return {str:{value:10, name:'str'}, dex:{value:10, name:'dex'}, con:{value:10, name:'con'}, wis:{value:10, name:'wis'}}
+    },
+
+    playerMaxHealthCalc(){
+      return 10
+    },
 
     activityDisplay(){
       switch(this.gameData.currentActivity){
@@ -360,9 +432,6 @@ export default {
       return this.gameData.hour + (this.gameData.day * globalVars.hoursInDay) + (this.gameData.year * globalVars.hoursInDay * globalVars.daysInYear)
     },
 
-    maxEnergy(){
-      return globalVars.baseMaxEnergy
-    }
   },
 
 }

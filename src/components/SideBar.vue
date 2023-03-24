@@ -2,7 +2,6 @@
   <div class="relative h-full text-white ">
     <div class="grid">
       <button v-for="item in buttons" :key="item" class="side-btn" @click="emitTabSwitch(item.tab)"> {{ item.label }} </button>
-      <button class="side-btn" @click="emitTabSwitch('main')"> test </button>
     </div>
   </div>
 </template>

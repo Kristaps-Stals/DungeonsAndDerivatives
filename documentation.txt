@@ -1,0 +1,41 @@
+A creature has the following structure:
+creature = {
+  name      // name
+  health      // current health
+  maxHealth     // maximum health
+  mana      // current mana
+  maxMana     // maximum mana
+  actionSpeed     // how long between each action in miliseconds
+  weapon {
+    name      // name of weapon
+    attackMod     // attack modifier
+    damage      // damage of weapon
+  }
+  armor {
+    name      // name of armor
+    armorClassMod     // armor class modifier
+    armorType     // armor type (light, medium, heavy)
+  }
+  stats {     // stats container
+    str {     // strength
+      value     // amount of stat
+      name      // name of stat
+    }
+    dex {     // dexterity
+      value     // amount of stat
+      name      // name of stat
+    }
+    con {     // constitution
+      value     // amount of stat
+      name      // name of stat
+    }
+    wis {     // wisdom
+      value     // amount of stat
+      name      // name of stat
+    }
+  }
+  animations {      // animations container
+    hurt      // when getting hurt
+    dodge     // when enemy dodges
+  }
+}
