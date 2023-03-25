@@ -5,7 +5,9 @@ creature = {
   maxHealth     // maximum health
   mana      // current mana
   maxMana     // maximum mana
-  actionSpeed     // how long between each action in miliseconds
+  actionInterval     // how long between each action in miliseconds
+  actions     // how many actions the creature currently has
+  maxActions      // how many actions the creature can have
   weapon {
     name      // name of weapon
     attackMod     // attack modifier

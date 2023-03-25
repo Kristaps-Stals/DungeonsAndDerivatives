@@ -1,0 +1,11 @@
+unarmed_attack:
+  attack: (DEX)+1d20
+  damage: (STR)+1d4
+
+wooden_log:
+  attack: (DEX)+1d20
+  damage: (STR)*1d4
+
+wooden_knife:
+  attack: (DEX)+1d20
+  damage: (STR)*1d6

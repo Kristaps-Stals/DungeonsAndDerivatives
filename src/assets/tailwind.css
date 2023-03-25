@@ -15,11 +15,25 @@
   }
 }
 
+.darktext {
+  color: var(--main-color-bright)
+}
+
+
+
 html {
   background-color: var(--color-background);
   margin: 0;
   height: 100%;
   overflow: hidden
+}
+
+.enlargehover{
+  transform: scale(1);
+  transition: all 0.2s cubic-bezier(.23,.46,.2,1);
+}
+.enlargehover:hover{
+  transform: scale(1.1);
 }
 
 .left0 {
@@ -223,8 +237,6 @@ html {
   @apply text-white rounded-lg
 }
 
-
-
 .btn-settings {
   background-color: var(--side-nav-secondary);
   border-color: var(--side-nav-main);
@@ -247,4 +259,35 @@ html {
 .btn-exit:hover {
   background-color: var(--side-nav-main);
   @apply text-black
+}
+
+.tooltip {
+  visibility: hidden;
+  opacity: 0%;
+  width: 120px;
+  background-color: var(--color-background);
+  color: #fff;
+  border-width: 1px;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 10;
+  width: 300px;
+  bottom: 105%;
+  left: 50%;
+  margin-left: -150px; 
+  
+  @apply text-sm duration-200 transition-all select-none  group-hover:opacity-100 group-hover:visible border-color hover:!opacity-0 hover:!hidden; 
+}
+
+.tooltip::after {
+  content: " ";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--main-color-bright) transparent transparent transparent;
 }

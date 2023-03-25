@@ -16,6 +16,10 @@
       <BarDisplay v-if="creature.maxMana > 0" class="relative flex-1 m-2 border-2 border-color rounded-lg overflow-hidden" :displayData="manaBarData"/>
     </div>
   </div>
+  <!-- Action bar -->
+  <div class="absolute" :class="{right0:!mirrored}" style="width:80%; height: 5px; top:10%">
+    <div class="bg-yellow-500 absolute h-full" :style="{'width': actionBarData.fillAmount + '%'}"></div>
+  </div>
 </template>
 
 <script>
@@ -30,11 +34,16 @@ export default {
     BarDisplay, // displayData(for BarDisplay) = primColor; fillAmount; text;
   },
 
+  mounted(){
+    console.log(this.actionBarData.fillAmount)
+  },
+
   props: ["creature", "mirrored"],
   emits: ["event"],
 
   methods: {
     emitEvent(message){
+      
       this.$emit('event', message)
     }
 
@@ -52,6 +61,12 @@ export default {
     manaBarData(){
       return {primColor:'#0000FF', text:'hello', fillAmount:100}
     },
+
+    actionBarData(){
+      var fill = (this.creature.actions*100)/this.creature.maxActions
+      fill = Math.max(0, Math.min(100, fill))
+      return {fillAmount:fill}
+    }
   }
 }
 </script>

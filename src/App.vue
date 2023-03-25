@@ -46,25 +46,30 @@
 
     <!-- Popup -->
     <Popup :popupMessages="popupMessages"/>
-    
+
 
   </div>
 </template>
 
 <script>
+// Tabs
 import MainTab from './components/Tabs/MainTab.vue'
 import MedicalTab from './components/Tabs/MedicalTab.vue'
 import CombatTab from './components/Tabs/CombatTab.vue'
 import ShelterTab from './components/Tabs/ShelterTab.vue'
 import TabletTab from './components/Tabs/TabletTab.vue'
 
+// Other components
 import SideBar from './components/SideBar.vue'
 import Settings from './components/Settings.vue'
 import MessageLog from './components/MessageLog.vue'
 import ModalTemplates from './components/ModalTemplates.vue'
 import Popup from './components/Popup.vue'
+
+// Seperate scripts
 import cypher from './cypher.js'
 import globalVars from './globalVars.js'
+import combat from './combat.js'
 
 export default {
   name: 'App',
@@ -84,8 +89,18 @@ export default {
   },
 
   mounted(){
+    
+    // Initialize playerStats
+    this.gameData.stats = this.playerStatsCalc
+    this.gameData.maxHealth = this.playerMaxHealthCalc
+
     this.defaultGameData = JSON.parse(JSON.stringify(this.gameData))
     this.loadGame('none')
+
+    // Initialize playerStats
+    this.gameData.stats = this.playerStatsCalc
+    this.gameData.maxHealth = this.playerMaxHealthCalc
+
     // autosave game every 30s
     setInterval(() => {
       this.saveGame()
@@ -99,10 +114,7 @@ export default {
       this.passRealTime(nextDate.getTime()-date.getTime())
       date = nextDate
     }, 10)
-
-    // Initialize playerStats
-    this.gameData.stats = this.playerStatsCalc
-    this.gameData.maxHealth = this.playerMaxHealthCalc
+    
   },
 
   data(){
@@ -116,19 +128,24 @@ export default {
         name: 'janY',
         health: 10,
         maxHealth: 10,
-        mainButtonProgress: 0,
+        actions: 1,
+        maxActions: 1,
+        mainButtonProgress: 0, // obsolete
         currentActivity: null,
         bodyModifiers:[],
         abilities:[
           {
-            name:'Basic Attack',
-            id:'basic_attack'
+            name:'Unarmed Attack',
+            id:'unarmed_attack'
           },
         ],
         enemies:[{
           name: 'goblin',
           health: 10,
           maxHealth: 10,
+          actionInterval: 6000,
+          actions: 1,
+          maxActions: 1,
           stats:{
             str:{
               value: 10,
@@ -186,21 +203,27 @@ export default {
         case 'mainButtonClick':
           this.mainButtonClick()
           break
-        case 'basic_attack':
-          this.gameData.enemies[0].health -= 1
-          if (this.gameData.enemies[0].animations.hurt == true){
-            this.gameData.enemies[0].animations.hurt = false
-          }
-          setTimeout( () => {
-            this.gameData.enemies[0].animations.hurt = true
-          clearInterval(this.gameData.enemies[0].animations.hurtInterval)
-          this.gameData.enemies[0].animations.hurtInterval = setTimeout(() => {
-            this.gameData.enemies[0].animations.hurt = false
-          }, 500)
-          }, 10)
-          
-          
+        case 'ability':
+          this.performAction(this.gameData, this.gameData.enemies[0], event.ability)
           break
+      }
+    },
+
+    performAction(attacker, defender, action){
+      if (attacker.actions >= 1){
+        console.log("performing " + action)
+        attacker.actions = 0
+        this.gameData.enemies[0].health -= 1
+        if (this.gameData.enemies[0].animations.hurt == true){
+          this.gameData.enemies[0].animations.hurt = false
+        }
+        setTimeout( () => {
+          this.gameData.enemies[0].animations.hurt = true
+        clearInterval(this.gameData.enemies[0].animations.hurtInterval)
+        this.gameData.enemies[0].animations.hurtInterval = setTimeout(() => {
+          this.gameData.enemies[0].animations.hurt = false
+        }, 500)
+        }, 10)
       }
     },
 
@@ -227,6 +250,19 @@ export default {
 
     passRealTime(miliseconds){
       this.gameData.statistics.realTimePlayed += miliseconds
+      
+      // regenerates player actions
+      if(this.gameData.actions < this.gameData.maxActions) {
+        this.gameData.actions += (miliseconds/this.playerActionInterval)
+      }
+
+      // regenerates enemy actions
+      for(var enemy in this.gameData.enemies){
+        if(enemy.actions < enemy.maxActions) {
+          enemy.actions += (miliseconds/enemy.actionInterval)
+        }
+      }
+
     },
 
     // Saves game
@@ -411,7 +447,7 @@ export default {
     },
   
     playerStatsCalc(){ // STR, DEX, CON, WIS...
-      return {str:{value:10, name:'str'}, dex:{value:10, name:'dex'}, con:{value:10, name:'con'}, wis:{value:10, name:'wis'}}
+      return {str:{value:5, name:'str'}, dex:{value:5, name:'dex'}, con:{value:5, name:'con'}, wis:{value:5, name:'wis'}}
     },
 
     playerMaxHealthCalc(){
@@ -431,6 +467,10 @@ export default {
     totalHoursPassed(){
       return this.gameData.hour + (this.gameData.day * globalVars.hoursInDay) + (this.gameData.year * globalVars.hoursInDay * globalVars.daysInYear)
     },
+
+    playerActionInterval(){
+      return globalVars.baseActionInterval
+    }
 
   },
 

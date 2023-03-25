@@ -1,0 +1,7 @@
+-- add combat
+  -- add weapons
+  -- add enemies
+
+-- add a character tab
+  -- levels
+  
