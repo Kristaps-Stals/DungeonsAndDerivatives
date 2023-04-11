@@ -2,10 +2,64 @@ unarmed_attack:
   attack: (DEX)+1d20
   damage: (STR)+1d4
 
-wooden_log:
-  attack: (DEX)+1d20
-  damage: (STR)*1d4
+example items:
+{
+  title: "knife",
+  type: "weapon",
+  subtype: "melee",
+  rarity: 1,
+  mods:{
+    nouns:[{id:"knife", minRoll:[40, 1, 4], maxRoll:[60, 2, 6], roll:[46, 1, 5], damageDice: "1d8", attackDice: "1d20"}],
+    verbs:[],
+    adjectives:[],
+  },
+}
 
-wooden_knife:
-  attack: (DEX)+1d20
-  damage: (STR)*1d6
+{
+  title: "knife",
+  type: "weapon",
+  subtype: "melee",
+  rarity: 2,
+  mods:{
+    nouns: [{id:"knife", minRoll:[40, 1, 4], maxRoll:[60, 2, 6], roll:[46, 1, 5], damageDice: "1d8", attackDice:"1d20"}],
+    verbs:[{id:"rapid_attack"}],
+    adjectives:[{id:"sharp", minRoll:[2], maxRoll:[6], roll:[4]}],
+  },
+}
+
+{title: "knife", type: "weapon", subtype: "melee",rarity: 2,mods:{nouns: [{id:"knife",description:["", "% chance to inflict ", " bleed for ", " seconds"], minRoll:[40, 1, 4], maxRoll:[60, 2, 6], roll:[46, 1, 5], damageDice: "1d8", attackDice:"1d20"}],verbs:[{id:"rapid_attack"}],adjectives:[{id:"sharp", minRoll:[2], maxRoll:[6], roll:[4]}],},}
+
+each item has:
+
+attack attribute
+damage attribute
+attack dice
+damage dice
+
+weapon subtypes:
+  melee: "attack attribute = str; damage attribute = str",
+  ranged: "attack attribute = dex; damage attribute = str",
+  magic: "attack attribute = (wis); damage attribute = (wis)",
+
+
+always has noun (noun = base)
+nouns(bases):
+  knife: "subtype=melee; (40-60)% chance to inflict bleed(1-2) for (4-6) seconds; damageDice = 1d8",
+  sword: "subtype=melee; +(3-5) flat damage bonus; damageDice = 1d10",
+  mace: "subtype=melee; (40-60)% chance to stun the enemy for (1-2) seconds; damageDice = 1d12",
+  bow: "subtype=ranged; +(3-5) flat accuracy bonus",
+
+mods:
+  verbs:
+    of blocking: "ability to block"
+    of rapid attack: "ability to double attack"
+
+
+  adjectives:
+    sharp: "(2-6) base damage bonus"
+    accurate: "(2-6) base accuracy bonus"
+    quick: "(15-20)% increased attack speed"
+
+
+
+  (potentially more unlocked later)

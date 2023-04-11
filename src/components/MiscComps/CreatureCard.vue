@@ -20,6 +20,23 @@
   <div class="absolute" :class="{right0:!mirrored}" style="width:80%; height: 5px; top:10%">
     <div class="bg-yellow-500 absolute h-full" :style="{'width': actionBarData.fillAmount + '%'}"></div>
   </div>
+  <!-- Armor class -->
+  <div class="absolute border-t-2 border-color" :class="{right0:!mirrored, borderleft:!mirrored, borderright:mirrored}" style="bottom:22.5%; height:22.5%; width:20%">
+    <StatDisplay :displayData="{title: 'ac', value: creature.armorClass}"/>
+  </div>
+  <!-- Latest Attack Info -->
+  <div class="absolute flex flex-col" :class="{right0:!mirrored}" style="width:80%; height:45%; top:10%">
+    <!-- Attack Score -->
+    <div class="flex-1 relative">
+      <p class="text-xl">Attack</p>
+      <p class="absolute top-1/2 left-1/2 anchor-center text-2xl w-full text-center">{{ latestActionData.attack }}</p>
+    </div>
+    <!-- Damage Score -->
+    <div class="flex-1 relative">
+      <p class="text-xl">Damage</p>
+      <p class="absolute top-1/2 left-1/2 anchor-center text-2xl w-full text-center">{{ latestActionData.damage }}</p>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -34,16 +51,11 @@ export default {
     BarDisplay, // displayData(for BarDisplay) = primColor; fillAmount; text;
   },
 
-  mounted(){
-    console.log(this.actionBarData.fillAmount)
-  },
-
   props: ["creature", "mirrored"],
   emits: ["event"],
 
   methods: {
     emitEvent(message){
-      
       this.$emit('event', message)
     }
 
@@ -66,6 +78,19 @@ export default {
       var fill = (this.creature.actions*100)/this.creature.maxActions
       fill = Math.max(0, Math.min(100, fill))
       return {fillAmount:fill}
+    },
+
+    latestActionData(){
+      var attack, damage
+      if (this.creature.latestAttack != null){
+        attack = this.creature.latestAttack.attackMessage
+        damage = this.creature.latestAttack.damageMessage
+      } else {
+        attack = ''
+        damage = ''
+      }
+
+      return {attack:attack ,damage:damage}
     }
   }
 }

@@ -67,6 +67,18 @@ html {
   }
   
 }
+.fastestfadein {
+  animation: slowfadein 0.1s linear
+}
+@keyframes slowfadein {
+  0% {
+    opacity: 0%;
+  }
+  100% {
+    opacity: 100%;
+  }
+  
+}
 
 .fadeinhalf {
   animation: fadeinhalf 0.5s cubic-bezier(.21,.99,.46,1)
@@ -79,6 +91,8 @@ html {
     opacity: 50%;
   }
 }
+
+
 
 .hurtAnim {
   animation: hurtAnim 0.5s cubic-bezier(.21,.99,.46,1);

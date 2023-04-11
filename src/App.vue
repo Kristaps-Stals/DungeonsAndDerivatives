@@ -13,6 +13,7 @@
         <CombatTab v-if="ActiveTab=='combat'" :gameData="gameData" @event="handleEvent"/>
         <ShelterTab v-if="ActiveTab=='shelter'" :gameData="gameData" @event="handleEvent"/>
         <TabletTab v-if="ActiveTab=='tablet'" :gameData="gameData" @event="handleEvent"/>
+        <EquipmentTab v-if="ActiveTab=='equipment'" :gameData="gameData" @event="handleEvent"/>
         <Settings v-if="ActiveTab=='settings'" @settingClicked="handleSettingClicked"/>
       </div>
     </div>
@@ -58,6 +59,7 @@ import MedicalTab from './components/Tabs/MedicalTab.vue'
 import CombatTab from './components/Tabs/CombatTab.vue'
 import ShelterTab from './components/Tabs/ShelterTab.vue'
 import TabletTab from './components/Tabs/TabletTab.vue'
+import EquipmentTab from './components/Tabs/EquipmentTab.vue'
 
 // Other components
 import SideBar from './components/SideBar.vue'
@@ -80,6 +82,7 @@ export default {
     CombatTab,
     ShelterTab,
     TabletTab,
+    EquipmentTab,
 
     SideBar,
     Settings,
@@ -91,15 +94,13 @@ export default {
   mounted(){
     
     // Initialize playerStats
-    this.gameData.stats = this.playerStatsCalc
-    this.gameData.maxHealth = this.playerMaxHealthCalc
+    this.initializeComputed()
 
     this.defaultGameData = JSON.parse(JSON.stringify(this.gameData))
     this.loadGame('none')
 
     // Initialize playerStats
-    this.gameData.stats = this.playerStatsCalc
-    this.gameData.maxHealth = this.playerMaxHealthCalc
+    this.initializeComputed()
 
     // autosave game every 30s
     setInterval(() => {
@@ -132,7 +133,10 @@ export default {
         maxActions: 1,
         mainButtonProgress: 0, // obsolete
         currentActivity: null,
+        armorClass: 5,
+        equipment:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,{title: "knife", type: "weapon", subtype: "melee",rarity: 2,mods:{nouns: [{id:"knife",description:["", "% chance to inflict ", " bleed for ", " seconds"], minRoll:[40, 1, 4], maxRoll:[60, 2, 6], roll:[46, 1, 5], damageDice: "1d8", attackDice:"1d20"}],verbs:[{id:"rapid_attack"}],adjectives:[{id:"sharp", minRoll:[2], maxRoll:[6], roll:[4]}],},},0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // Inventory
         bodyModifiers:[],
+        stats:{str:{value:5, name:'str'}, dex:{value:5, name:'dex'}, con:{value:5, name:'con'}, wis:{value:5, name:'wis'}},
         abilities:[
           {
             name:'Unarmed Attack',
@@ -146,21 +150,23 @@ export default {
           actionInterval: 6000,
           actions: 1,
           maxActions: 1,
+          armorClass: 14,
+          latestAttack: null,
           stats:{
             str:{
-              value: 10,
+              value: 2,
               name: 'str',
             },
             dex:{
-              value: 10,
+              value: 4,
               name: 'dex',
             },
             con:{
-              value: 10,
+              value: 1,
               name: 'con',
             },
             wis:{
-              value: 9,
+              value: 1,
               name: 'wis',
             },
           }, 
@@ -213,18 +219,19 @@ export default {
       if (attacker.actions >= 1){
         console.log("performing " + action)
         attacker.actions = 0
-        this.gameData.enemies[0].health -= 1
-        if (this.gameData.enemies[0].animations.hurt == true){
-          this.gameData.enemies[0].animations.hurt = false
+        attacker.latestAttack = combat.attemptAttack(this.gameData, this.gameData.enemies[0], action)
+        this.gameData.enemies[0].health -= attacker.latestAttack.damage
+        if (attacker.latestAttack.damage > 0){
+          this.doAnimation(this.gameData.enemies[0], "hurt")
         }
-        setTimeout( () => {
-          this.gameData.enemies[0].animations.hurt = true
-        clearInterval(this.gameData.enemies[0].animations.hurtInterval)
-        this.gameData.enemies[0].animations.hurtInterval = setTimeout(() => {
-          this.gameData.enemies[0].animations.hurt = false
-        }, 500)
-        }, 10)
+        
       }
+    },
+
+    initializeComputed(){
+      this.gameData.stats = this.playerStatsCalc
+      this.gameData.maxHealth = this.playerMaxHealthCalc
+      this.gameData.armorClass = this.playerArmorClassCalc
     },
 
     mainButtonClick(){
@@ -308,6 +315,20 @@ export default {
       }
     },
 
+    doAnimation(creature, animation) { // performs an animation for creature (if already playing, then stop and start over)
+      if (creature.animations[animation] == true){
+        creature.animations[animation] = false
+      }
+      var intervalAnimation = animation.concat("Interval")
+      setTimeout( () => {
+        creature.animations[animation] = true
+        clearInterval(creature.animations[intervalAnimation])
+        creature.animations[intervalAnimation] = setTimeout(() => {
+          creature.animations[animation] = false
+        }, globalVars.animationDuration[animation])
+      }, 10)
+    },
+
     setImportString(inString){
       this.importString = inString
     },
@@ -383,6 +404,7 @@ export default {
 
     },
 
+
     // activates when button is finished
     doMainButton(amount){
       this.gameData.purchased.tempStr += 1
@@ -418,6 +440,7 @@ export default {
       this.setGameLoop(newVal, 1)
     },
 
+    // Update stats
     playerStatsCalc(newVal, oldVal){
       this.gameData.stats = newVal
     },
@@ -425,6 +448,10 @@ export default {
     playerMaxHealthCalc(newVal, oldVal){
       this.gameData.maxHealth = newVal
     },
+
+    playerArmorClassCalc(newVal, oldVal){
+      this.gameData.armorClass = newVal
+    }
 
   },
 
@@ -452,6 +479,13 @@ export default {
 
     playerMaxHealthCalc(){
       return 10
+    },
+
+    playerArmorClassCalc(){
+      if (this.gameData.stats != undefined){
+        return (5 + this.gameData.stats.dex.value)
+      }
+      return -1
     },
 
     activityDisplay(){

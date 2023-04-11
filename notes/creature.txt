@@ -8,6 +8,8 @@ creature = {
   actionInterval     // how long between each action in miliseconds
   actions     // how many actions the creature currently has
   maxActions      // how many actions the creature can have
+  armorClass      // armor class of the creature
+  regen     // creatures regen per second
   weapon {
     name      // name of weapon
     attackMod     // attack modifier
