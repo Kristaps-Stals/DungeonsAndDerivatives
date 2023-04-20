@@ -65,7 +65,7 @@ export default {
 
   methods: {
     emitEvent(message){
-      console.log(message)
+      //console.log(message)
       this.$emit('event', message)
     },
 
@@ -73,7 +73,7 @@ export default {
       switch(event.id){
         case "hover":
           this.activeItem = event.item
-          console.log(this.activeItem)
+          //console.log(this.activeItem)
           break
         case "active":
           break
@@ -90,7 +90,7 @@ export default {
 
     test(msg){
 
-      this.gameData.equipment[0] = {...items.generateItem({rarity:2})}
+      this.gameData.equipment[0] = {...items.generateItem({rarity:1})}
     }
   },
 
@@ -110,7 +110,7 @@ export default {
     },
 
     typeAttributes(){
-      return items.getTypeAttributes(this.activeItem.type)
+      return items.getTypeAttributes(this.activeItem.subtype)
     },
 
     attackDice(){

@@ -59,7 +59,7 @@ export default {
   methods: {
     emitEvent(message){
       
-      console.log(message)
+      //console.log(message)
       this.$emit('event', message)
     },
     

@@ -3,7 +3,7 @@ import stats from "./stats.js"
 const items = {
   itemTypes:["weapon", "armor"],
   itemTypesWeights:[100, 100],
-  nounCount:[0,1,1],
+  nounCount:[1,1,1],
   verbCount:[0,1,1],
   adjectiveCount:[0,1,2],
 
@@ -29,20 +29,38 @@ const items = {
     // Item type
     item.type = this.itemTypes[this.pickElement(this.itemTypesWeights)]
 
-    // Nouns
-    var allowedNouns = []
-    var allowedNounsWeights = []
-    // Get all allowed nouns
-    for (var stat in stats["nouns"]){
-      let s = stats["nouns"][stat]
-      if (s.minRarity <= rarity){
-        allowedNouns.push(s)
-        allowedNounsWeights.push(s.weight)
-      }
-    }
+    // nouns
+    var [allowedNouns, allowedNounsWeights] = this.getPossibleStats({type:"nouns", rarity:rarity})
     let chosenNoun = allowedNouns[this.pickElement(allowedNounsWeights)]
     item.mods.nouns.push(this.rollMod(chosenNoun, rarity))
-    console.log(item)
+    item.subtype = chosenNoun.subtype
+
+    // verbs
+    var [allowedVerbs, allowedVerbsWeights] = this.getPossibleStats({type:"verbs", rarity:rarity})
+    for (var i = 0; i < this.verbCount[rarity]; i++){
+      if(allowedVerbs.length == 0){break}
+      let element = this.pickElement(allowedVerbsWeights)
+      let chosenVerb = allowedVerbs[element]
+      item.mods.verbs.push(chosenVerb)
+      allowedVerbs.splice(element,1)
+      allowedVerbsWeights.splice(element,1)
+    }
+
+    // adjectives
+    var [allowedAdjectives, allowedAdjectivesWeights] = this.getPossibleStats({type:"adjectives", rarity:rarity})
+    for (var i = 0; i < this.adjectiveCount[rarity]; i++){
+      if(allowedAdjectives.length == 0){break}
+      let element = this.pickElement(allowedAdjectivesWeights)
+      let chosenAdjective = allowedAdjectives[element]
+      console.log(chosenAdjective)
+      item.mods.adjectives.push(this.rollMod(chosenAdjective, rarity))
+      
+      allowedAdjectives.splice(element,1)
+      allowedAdjectivesWeights.splice(element,1)
+    }
+
+
+    //console.log(item)
 
     //console.log(allowedNouns)
     //console.log(allowedNounsWeights)
@@ -57,11 +75,28 @@ const items = {
     return item
   },
 
+  getPossibleStats(parameters){ //example - rarity:1, type:"nouns",
+    var rarity = parameters.rarity
+    var type = parameters.type
+    var possibleStats = []
+    var possibleStatsWeights = []
+
+    for (var stat in stats[type]){
+      let s = stats[type][stat]
+      if (s.minRarity <= rarity){
+        possibleStats.push(s)
+        possibleStatsWeights.push(s.weight)
+      }
+    }
+
+    return [possibleStats, possibleStatsWeights]
+  },
+
   getRarityColor(rarity){
     switch(rarity){
-      case 1:
+      case 0:
         return "ffffff"
-      case 2:
+      case 1:
         return "#00b400"
     }
     return "ffffff"
@@ -69,15 +104,16 @@ const items = {
 
   getRarityName(rarity){
     switch(rarity){
-      case 1:
+      case 0:
         return "common"
-      case 2:
+      case 1:
         return "uncommon"
     }
     return "common"
   },
 
   getTypeAttributes(type){
+    //console.log(type)
     switch(type){
       case "melee":
         return {attackAttribute: "str", damageAttribute: "str"}
@@ -132,7 +168,7 @@ const items = {
     // Create description
     for(let i = 0; i < stat.description.length; i++){
       description += stat.description[i]
-      console.log(stat)
+      // console.log(stat)
       if (i+1 < stat.description.length){
         description += stat.roll[i]
       }
@@ -164,10 +200,11 @@ const items = {
     var newmod = {
       ...mod
     }
-    newmod.minRoll = newmod.minRoll[(rarity-1)]
+
+    newmod.minRoll = newmod.minRoll[rarity]
+    newmod.maxRoll = newmod.maxRoll[rarity]
     newmod.roll = []
-    
-    newmod.maxRoll = newmod.maxRoll[(rarity-1)]
+
     for (var i = 0; i < newmod.maxRoll.length; i++){
       var difference = newmod.maxRoll[i] - newmod.minRoll[i]
       var random = Math.floor(Math.random()*(difference+1))

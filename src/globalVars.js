@@ -5,6 +5,7 @@ const globalVars = {
   baseActionInterval:6000, // in ms
   mainButtonBaseProgressPerHour: 25, // obsolete
 
+
   sideTabButtons: [
     {label: "Combat", tab: "combat"},
     {label: "Equipment", tab: "equipment"},
